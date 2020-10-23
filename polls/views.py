@@ -1,22 +1,23 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views import generic
 
 from . import models
 # Create your views here.
-def index(request):
-  question_list = models.Question.objects.order_by('-pub_date')[:5]
-  #return HttpResponse(', '.join(question.question_text for question in question_list))
-  #question_list = []
-  return render(request, 'polls/index.html', context = {'question_list': question_list})
+class index(generic.ListView):
+  template_name = 'polls/index.html'
+  def get_queryset(self):
+    return models.Question.objects.order_by('-pub_date')[:5]
 
-def detail(request, question_id):
-  question = get_object_or_404(models.Question, pk = question_id)
-  return render(request, 'polls/detail.html', context={'question': question})
+class detail(generic.DetailView):
+  model = models.Question
+  template_name = 'polls/detail.html'
 
-def results(request, question_id):
-  question = get_object_or_404(models.Question, id = question_id)
-  return render(request, 'polls/results.html', context={'question': question})
+class results(generic.DetailView):
+  model = models.Question
+  pk_url_kwarg = 'question_id'
+  template_name = 'polls/results.html'
 
 def vote(request, pk):
   question = get_object_or_404(models.Question, id = pk)
